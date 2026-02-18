@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise Ramadan 🌙✨</title>
+    <style>
+        /* Desain Pastel & Lucu */
+        :root {
+            --pink-soft: #ffdde1;
+            --mint: #e0f2f1;
+            --cream: #fff9e6;
+            --text-color: #6d5d6e;
+            --accent: #ff8fa3;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--cream);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .emoji-display { font-size: 4rem; margin-bottom: 1rem; display: block; }
+
+        /* Tombol & Animasi */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            height: 50px;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        #btn-yes { background-color: var(--accent); color: white; }
+        #btn-no { background-color: #ddd; color: #777; position: absolute; }
+
+        .fade-in { animation: fadeIn 0.8s ease forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Input Section */
+        textarea {
+            width: 100%;
+            border-radius: 15px;
+            border: 2px solid var(--pink-soft);
+            padding: 10px;
+            margin-top: 15px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        #result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--mint);
+            border-radius: 15px;
+            display: none;
+            border: 2px dashed var(--accent);
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="container" id="main-card">
+        <div id="content-area" class="fade-in">
+            <span class="emoji-display">😌</span>
+            <h1>Hai kamu... siap membuka sesuatu yang spesial?</h1>
+            <div class="btn-group">
+                <button id="btn-yes" onclick="nextSlide()">YES 💖</button>
+                <button id="btn-no" onmouseover="moveNo()">NO 🙈</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = [
+            { emoji: "✨", text: "Ciyeee... ada yang penasaran nih!" },
+            { emoji: "🕯️", text: "Gak kerasa ya, bulan suci sudah tiba..." },
+            { emoji: "🍲", text: "Sudah siap berburu takjil favoritmu?" },
+            { emoji: "☁️", text: "Semoga hati kita selalu tenang sejuk seperti warna ini..." },
+            { emoji: "🤲", text: "Dan setiap doa-doa baikmu segera dikabulkan." },
+            { emoji: "🌙✨", text: "Selamat menunaikan ibadah puasa!<br>Semoga penuh berkah dan bahagia selalu 🤍", isFinal: true }
+        ];
+
+        function moveNo() {
+            const btnNo = document.getElementById('btn-no');
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight);
+            btnNo.style.left = x + 'px';
+            btnNo.style.top = y + 'px';
+        }
+
+        function nextSlide() {
+            const content = document.getElementById('content-area');
+            content.classList.remove('fade-in');
+            
+            // Trigger reflow for animation
+            void content.offsetWidth;
+            
+            if (currentSlide < slides.length) {
+                const data = slides[currentSlide];
+                let html = `
+                    <span class="emoji-display">${data.emoji}</span>
+                    <h1>${data.text}</h1>
+                `;
+
+                if (data.isFinal) {
+                    html += `
+                        <textarea id="user-note" placeholder="Tulis catatan kamu di sini..." rows="3"></textarea>
+                        <button id="btn-yes" style="margin-top:10px" onclick="sendNote()">Kirim Catatan ✨</button>
+                        <div id="result-box" class="fade-in"></div>
+                    `;
+                    document.getElementById('btn-no').style.display = 'none';
+                } else {
+                    html += `
+                        <div class="btn-group">
+                            <button id="btn-yes" onclick="nextSlide()">Lanjut 🌷</button>
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = html;
+                content.classList.add('fade-in');
+                currentSlide++;
+            }
+        }
+
+        function sendNote() {
+            const note = document.getElementById('user-note').value;
+            const resBox = document.getElementById('result-box');
+            if(note.trim() !== "") {
+                resBox.style.display = 'block';
+                resBox.innerHTML = `<strong>Pesanmu tersimpan:</strong><br>"${note}"`;
+                startConfetti();
+            } else {
+                alert("Tulis sesuatu dulu yaa~ 🌸");
+            }
+        }
+
+        // Efek Confetti Sederhana
+        function startConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 2,
+                    d: Math.random() * 100,
+                    color: `hsl(${Math.random() * 360}, 70%, 80%)`,
+                    tilt: Math.random() * 10 - 10
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, i) => {
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                    
+                    p.y += Math.cos(p.d) + 1 + p.r / 2;
+                    p.tilt = Math.sin(p.d) * 15;
+                    
+                    if (p.y > canvas.height) {
+                        particles[i] = { ...p, y: -20 };
+                    }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+            setTimeout(() => { canvas.style.display = 'none'; }, 5000);
+        }
+    </script>
+</body>
+</html>
